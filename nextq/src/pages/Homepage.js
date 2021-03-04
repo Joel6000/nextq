@@ -1,38 +1,54 @@
 import React, { useContext } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import { Auth } from '../components/context.js';
+import { StyleSheet, Text, View, SafeAreaView, Image, TouchableOpacity, StatusBar } from 'react-native';
 
 export default function Homepage({navigation}) {
 
-  const { loggedIn } = useContext(Auth);
-
+  // Pass states from setAllState @ App.js using Context & Memo.
+  const { loggedIn } = useContext(Auth); 
+  
   return (
-    <View style={styles.container}>
-      <View style={styles.image}>
-      <Text style={styles.textq}>Q</Text>
-      <Text style={styles.textnextq}>NextQ</Text>
-      <Image style={styles.homeimage} source={require('../Images/home.png')}/>
+    <SafeAreaView style={styles.safecontainer}>
+      <StatusBar barStyle='dark-content'/>
+      <View style={styles.container}>
+        <View style={styles.topcontainer}>
+          <View style={styles.image}>
+            <Text style={styles.textq}>Q</Text>
+            <Text style={styles.textnextq}>NextQ</Text>
+            <Image style={styles.homeimage} source={require('../Images/home.png')}/>
+          </View>
+          <View style={styles.test}>
+            <Text style={styles.textstart}> Start </Text>
+            <Text style={styles.textdescription}> Dont waste your time queuing! </Text>
+            { 
+            loggedIn 
+            ? <TouchableOpacity style={styles.power} onPress={() => navigation.navigate("Scan")}>
+                <Ionicons name="power" size={125} color="black"/>
+              </TouchableOpacity>
+            : <TouchableOpacity style={styles.power} onPress={() => navigation.navigate("Sign In")}>
+                <Ionicons name="power" size={125} color="black"/>
+              </TouchableOpacity>
+            }
+          </View>
+        </View>
       </View>
-      <View style={styles.test}>
-        <Text style={styles.textstart}> Start </Text>
-        <Text style={styles.textdescription}> Dont waste your time queuing! </Text>
-        { loggedIn 
-        ? <TouchableOpacity style={styles.power} onPress={() => navigation.navigate("Check In")}>
-          <Ionicons name="power" size={125} color="black"/>
-          </TouchableOpacity>
-        : <TouchableOpacity style={styles.power} onPress={() => navigation.navigate("Sign In")}>
-          <Ionicons name="power" size={125} color="black"/>
-          </TouchableOpacity> }
-      </View>
-      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safecontainer:{
+    flex:1,
+    backgroundColor:'black'
+  },
   container: {
     flex:1,
     backgroundColor: 'white',
+  },
+  topcontainer: {
+    flex:1,
+    justifyContent:'center'
   },
   image: {
     flex:0.6,
