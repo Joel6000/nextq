@@ -3,21 +3,21 @@ import * as React from 'react';
 import { Entypo, FontAwesome } from '@expo/vector-icons'; 
 import { Text, View, SafeAreaView, ScrollView, StyleSheet, Image, TextInput, Switch, StatusBar, RefreshControl } from 'react-native';
 
-export default function Shoppage() {
+export default function Shoppage({navigation}) {
   
   // Shops
   const [shops, setshops] = React.useState([])
   
-  React.useEffect(() => {    
-    axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
-    .then (result => {
-    console.log(result.data)
-    setshops([...result.data])
-    })
-    .catch (error => {
-      console.log('ERROR: ',error)
-    })
-  },[])
+  // React.useEffect(() => {    
+  //   axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
+  //   .then (result => {
+  //   const reversedata = result.data.reverse()
+  //   setshops([...reversedata])
+  //   })
+  //   .catch (error => {
+  //     console.log('ERROR: ',error)
+  //   })
+  // },[])
   
   // Refreshing extract from react native doc @ RefreshControl https://reactnative.dev/docs/refreshcontrol
   const wait = (timeout) => {
@@ -30,15 +30,52 @@ export default function Shoppage() {
     setRefreshing(true);
     axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
     .then (result => {
-    console.log(result.data)
-    const reversedata = result.data.reverse()
-    setshops([...reversedata])
+      const reversedata = result.data.reverse()
+      setshops([...reversedata])
     })
     .catch (error => {
       console.log('ERROR: ',error)
     })
     wait(2000).then(() => setRefreshing(false));
   }, []);
+
+  // When press on shop tab on bottom navigator, allow api call due to nested navigator required to add "dangerouslyGetParent()""
+  // React.useEffect(() => {
+  //   const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', () => {
+  //     setRefreshing(true);
+  //     axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
+  //     .then (result => {
+  //       console.log(result.data)
+  //       const reversedata = result.data.reverse()
+  //       setshops([...reversedata])
+  //       setRefreshing(false);
+  //       console.log("Refreshed & API successfully called!")
+  //     })
+  //     .catch (error => {
+  //       console.log('ERROR: ',error)
+  //     })
+  //   });
+  //   return unsubscribe;
+  // }, [navigation]);
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setRefreshing(true)
+      // if queueStatus is true whenever return back to checkinpage call the API to get the queue number.
+      axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
+      .then (result => {
+        const reversedata = result.data.reverse()
+        setshops([...reversedata])
+        setRefreshing(false);
+        console.log("Refreshed & API successfully called!")
+      })
+      .catch (error => {
+        console.log('ERROR: ',error)
+      })
+      setRefreshing(false)
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   // Filter data ( convert shop.name/location into lower case allow insensitive case search )
   const [filterdata, setfilterdata] = React.useState("")

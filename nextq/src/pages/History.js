@@ -5,8 +5,8 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, Text, SafeAreaView, View, ScrollView, StatusBar, RefreshControl } from 'react-native';
 
-export default function History() {
-
+export default function History({navigation}) {
+  
   // Pass states from setAllState @ App.js using Context & Memo.
   const { userID, jwt } = useContext(Auth); 
 
@@ -21,8 +21,8 @@ export default function History() {
       }
     })
     .then (result => {
-    const reversedata = result.data.reverse()
-    sethistory([...reversedata])
+      const reversedata = result.data.reverse()
+      sethistory([...reversedata])
     })
     .catch (error => {
       console.log('ERROR: ',error)
@@ -45,14 +45,61 @@ export default function History() {
       }
     })
     .then (result => {
-    const reversedata = result.data.reverse()
-    sethistory([...reversedata])
+      const reversedata = result.data.reverse()
+      sethistory([...reversedata])
     })
     .catch (error => {
       console.log('ERROR: ',error)
     });
     wait(2000).then(() => setRefreshing(false));
   }, []);
+
+  // When press on history tab on bottom navigator, allow api call due to nested navigator required to add "dangerouslyGetParent()""
+  // React.useEffect(() => {
+  //   const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', () => {
+  //     setRefreshing(true);
+  //     axios.get(`https://nextq.herokuapp.com/api/v1/history/${userID}/user/all`,
+  //     {
+  //       headers: {
+  //         "Authorization" : "Bearer " + jwt
+  //       }
+  //     })
+  //     .then (result => {
+  //       const reversedata = result.data.reverse()
+  //       sethistory([...reversedata])
+  //       setRefreshing(false);
+  //       console.log("Refreshed & API successfully called!")
+  //     })
+  //     .catch (error => {
+  //       console.log('ERROR: ',error)
+  //     });
+  //   });
+  //   return unsubscribe;
+  // }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setRefreshing(true)
+      // if queueStatus is true whenever return back to checkinpage call the API to get the queue number.
+      axios.get(`https://nextq.herokuapp.com/api/v1/history/${userID}/user/all`,
+      {
+        headers: {
+          "Authorization" : "Bearer " + jwt
+        }
+      })
+      .then (result => {
+        const reversedata = result.data.reverse()
+        sethistory([...reversedata])
+        setRefreshing(false);
+        console.log("Refreshed & API successfully called!")
+      })
+      .catch (error => {
+        console.log('ERROR: ',error)
+      });
+      setRefreshing(false)
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.safecontainer}>

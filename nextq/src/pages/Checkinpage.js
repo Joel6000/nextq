@@ -18,7 +18,7 @@ export default function Checkin({navigation}) {
   const [ checkedIN, setcheckedIN ] = useState()
 
   // Queue Status
-  const [ queueStatus, setqueueStatus ] = useState()
+  const [ queueStatus, setqueueStatus ] = useState(null)
   
   // Retrieve Store Name 
   const retrieveStoreName = async () => {
@@ -67,7 +67,7 @@ export default function Checkin({navigation}) {
       console.log('AsyncStorage error: ' + error.message);
     }
   }
-
+  
   // Retrieve functions
   retrieveQueue();
   retrieveCheckIn();
@@ -77,20 +77,24 @@ export default function Checkin({navigation}) {
   const [ queue, setqueue ] = useState("")
 
   // Notification
-  const [ notification, setnotification ] =useState("")
+  const [ notification, setnotification ] = useState("")
 
   useEffect(() => {    
     const getQ = async() => {
       const id = await AsyncStorage.getItem('userID');
-      axios.get(`https://nextq.herokuapp.com/api/v1/queue/${id}`)
-      .then (result => {
-        console.log(result)
-        setnotification(result.data.notification)
-        setqueue(result.data.queue_number)
-      })
-      .catch (error => {
-        console.log('ERROR: ',error)
-      })
+      if (queueStatus == true) {
+        axios.get(`https://nextq.herokuapp.com/api/v1/queue/${id}`)
+        .then (result => {
+          console.log(result.data)
+          setnotification(result.data.notification)
+          setqueue(result.data.queue_number)
+        })
+        .catch (error => {
+          console.log('ERROR: ',error)
+        })
+      } else {
+        console.log("You are not in an queue!")
+      }
     }
     getQ();
   },[])
@@ -104,15 +108,19 @@ export default function Checkin({navigation}) {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    axios.get(`https://nextq.herokuapp.com/api/v1/queue/${userID}`)
-    .then (result => {
-      console.log(result)
-      setnotification(result.data.notification)
-      setqueue(result.data.queue_number)
-    })
-    .catch (error => {
-      console.log('ERROR: ',error)
-    })
+    if (queueStatus == true) {
+      axios.get(`https://nextq.herokuapp.com/api/v1/queue/${userID}`)
+      .then (result => {
+        console.log(result.data)
+        setnotification(result.data.notification)
+        setqueue(result.data.queue_number)
+      })
+      .catch (error => {
+        console.log('ERROR: ',error)
+      })
+    } else {
+      console.log("You are not in an queue!")
+    }
     wait(2000).then(() => setRefreshing(false));
   }, []);
 
@@ -132,6 +140,8 @@ export default function Checkin({navigation}) {
         .catch (error => {
           console.log('ERROR: ',error)
         })
+      } else {
+        console.log("You are not in an queue!")
       }
       setRefreshing(false)
     });

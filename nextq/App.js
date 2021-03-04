@@ -35,9 +35,9 @@ export default function App() {
           const name = await AsyncStorage.getItem('name');
           const id = await AsyncStorage.getItem('userID');
           if (mobile == null && name == null && id == null) {  
-            setuserMobile(null) 
-            setuserName(null)
-            setuserID(null)
+            setuserMobile("") 
+            setuserName("")
+            setuserID("")
           }
           else {
             setuserMobile(mobile)

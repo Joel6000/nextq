@@ -32,7 +32,7 @@ export default function Profilepage({navigation}) {
     setLoggedFalse()
     Toast.show('Successfully sign out!', {
       duration: Toast.durations.LONG,
-      position: 90,
+      position: 45,
       textColor: 'black',
       backgroundColor: 'green',
       shadow: true,
