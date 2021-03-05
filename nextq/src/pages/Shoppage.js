@@ -11,17 +11,17 @@ export default function Shoppage({navigation}) {
   
   // This can be combine into useFocusEffect function (which is redudant)
   // But this useEffect api call is faster than useFocusEffect (cons is only able to run once whenever load into the screen)
-  React.useEffect(() => {    
-    axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
-    .then (result => {
-      const reversedata = result.data.reverse()
-      setshops([...reversedata])
-    })
-    .catch (error => {
-      setRefreshing(false);
-      console.log('ERROR: ',error)
-    })
-  },[])
+  // React.useEffect(() => {    
+  //   axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
+  //   .then (result => {
+  //     const reversedata = result.data.reverse()
+  //     setshops([...reversedata])
+  //   })
+  //   .catch (error => {
+  //     setRefreshing(false);
+  //     console.log('ERROR: ',error)
+  //   })
+  // },[])
   
   // Refreshing extract from react native doc @ RefreshControl https://reactnative.dev/docs/refreshcontrol
   const wait = (timeout) => {
