@@ -16,21 +16,21 @@ export default function History({navigation}) {
   
   // This can be combine into useFocusEffect function (which is redudant)
   // But this useEffect api call is faster than useFocusEffect (cons is only able to run once whenever load into the screen)
-  useEffect(() => {    
-    axios.get(`https://nextq.herokuapp.com/api/v1/history/${userID}/user/all`,
-    {
-      headers: {
-        "Authorization" : "Bearer " + jwt
-      }
-    })
-    .then (result => {
-      const reversedata = result.data.reverse()
-      sethistory([...reversedata])
-    })
-    .catch (error => {
-      console.log('ERROR: ',error)
-    })
-  },[])
+  // useEffect(() => {    
+  //   axios.get(`https://nextq.herokuapp.com/api/v1/history/${userID}/user/all`,
+  //   {
+  //     headers: {
+  //       "Authorization" : "Bearer " + jwt
+  //     }
+  //   })
+  //   .then (result => {
+  //     const reversedata = result.data.reverse()
+  //     sethistory([...reversedata])
+  //   })
+  //   .catch (error => {
+  //     console.log('ERROR: ',error)
+  //   })
+  // },[])
 
   // Refreshing extract from react native doc @ RefreshControl https://reactnative.dev/docs/refreshcontrol
   const wait = (timeout) => {

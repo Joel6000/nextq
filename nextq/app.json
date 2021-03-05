@@ -27,6 +27,8 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": "Queuing system mobile app",
+    "githubUrl": "https://github.com/Joel6000/nextq"
   }
 }
