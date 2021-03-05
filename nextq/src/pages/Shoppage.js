@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as React from 'react';
 import { Entypo, FontAwesome } from '@expo/vector-icons'; 
+import { useFocusEffect } from "@react-navigation/native";
 import { Text, View, SafeAreaView, ScrollView, StyleSheet, Image, TextInput, Switch, StatusBar, RefreshControl } from 'react-native';
 
 export default function Shoppage({navigation}) {
@@ -8,16 +9,19 @@ export default function Shoppage({navigation}) {
   // Shops
   const [shops, setshops] = React.useState([])
   
-  // React.useEffect(() => {    
-  //   axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
-  //   .then (result => {
-  //   const reversedata = result.data.reverse()
-  //   setshops([...reversedata])
-  //   })
-  //   .catch (error => {
-  //     console.log('ERROR: ',error)
-  //   })
-  // },[])
+  // This can be combine into useFocusEffect function (which is redudant)
+  // But this useEffect api call is faster than useFocusEffect (cons is only able to run once whenever load into the screen)
+  React.useEffect(() => {    
+    axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
+    .then (result => {
+      const reversedata = result.data.reverse()
+      setshops([...reversedata])
+    })
+    .catch (error => {
+      setRefreshing(false);
+      console.log('ERROR: ',error)
+    })
+  },[])
   
   // Refreshing extract from react native doc @ RefreshControl https://reactnative.dev/docs/refreshcontrol
   const wait = (timeout) => {
@@ -32,6 +36,7 @@ export default function Shoppage({navigation}) {
     .then (result => {
       const reversedata = result.data.reverse()
       setshops([...reversedata])
+      console.log("Swipe down & Refreshed!")
     })
     .catch (error => {
       console.log('ERROR: ',error)
@@ -49,7 +54,7 @@ export default function Shoppage({navigation}) {
   //       const reversedata = result.data.reverse()
   //       setshops([...reversedata])
   //       setRefreshing(false);
-  //       console.log("Refreshed & API successfully called!")
+  //       console.log("Refreshed & API successfully called! (Pressed on Icon)")
   //     })
   //     .catch (error => {
   //       console.log('ERROR: ',error)
@@ -58,6 +63,8 @@ export default function Shoppage({navigation}) {
   //   return unsubscribe;
   // }, [navigation]);
 
+  // Refresh whenever focus on screen
+  // This can be add into useFocusEffect function below to perform same functionality
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setRefreshing(true)
@@ -70,12 +77,34 @@ export default function Shoppage({navigation}) {
         console.log("Refreshed & API successfully called!")
       })
       .catch (error => {
+        setRefreshing(false);
         console.log('ERROR: ',error)
       })
-      setRefreshing(false)
     });
     return unsubscribe;
   }, [navigation]);
+
+  // Allow tabPress refresh function only when screen is Focused
+  useFocusEffect(
+    React.useCallback(() => {
+      const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', () => {
+        setRefreshing(true);
+        axios.get(`https://nextq.herokuapp.com/api/v1/stores/all`)
+        .then (result => {
+          console.log(result.data)
+          const reversedata = result.data.reverse()
+          setshops([...reversedata])
+          setRefreshing(false);
+          console.log("Refreshed & API successfully called! (Pressed on Icon)")
+        })
+        .catch (error => {
+          setRefreshing(false);
+          console.log('ERROR: ',error)
+        })
+      });
+    return unsubscribe;
+  }, [navigation])
+  )
 
   // Filter data ( convert shop.name/location into lower case allow insensitive case search )
   const [filterdata, setfilterdata] = React.useState("")

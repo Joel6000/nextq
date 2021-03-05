@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Card } from 'react-native-elements';
 import { Auth } from '../components/context.js';
+import { useFocusEffect } from "@react-navigation/native";
 import React, { useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import { MaterialCommunityIcons, Ionicons, FontAwesome, Entypo } from '@expo/vector-icons';
@@ -79,6 +80,8 @@ export default function Checkin({navigation}) {
   // Notification
   const [ notification, setnotification ] = useState("")
 
+  // This can be combine into useFocusEffect function (which is redudant)
+  // But this useEffect api call is faster than useFocusEffect (cons is only able to run once whenever load into the screen)
   useEffect(() => {    
     const getQ = async() => {
       const id = await AsyncStorage.getItem('userID');
@@ -93,7 +96,7 @@ export default function Checkin({navigation}) {
           console.log('ERROR: ',error)
         })
       } else {
-        console.log("You are not in an queue!")
+        console.log("You are not in any queue!")
       }
     }
     getQ();
@@ -119,7 +122,7 @@ export default function Checkin({navigation}) {
         console.log('ERROR: ',error)
       })
     } else {
-      console.log("You are not in an queue!")
+      console.log("You are not in any queue!")
     }
     wait(2000).then(() => setRefreshing(false));
   }, []);
@@ -141,12 +144,37 @@ export default function Checkin({navigation}) {
           console.log('ERROR: ',error)
         })
       } else {
-        console.log("You are not in an queue!")
+        console.log("You are not in any queue!")
       }
       setRefreshing(false)
     });
     return unsubscribe;
   }, [navigation]);
+
+  // Allow tabPress refresh function only when screen is Focused ( If in queue allow refresh update on queue number)
+  useFocusEffect(
+    React.useCallback(() => {
+      const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', () => {
+        setRefreshing(true)
+        // if queueStatus is true whenever return back to checkinpage call the API to get the queue number.
+        if (queueStatus == true) {
+          axios.get(`https://nextq.herokuapp.com/api/v1/queue/${userID}`)
+          .then (result => {
+            console.log(result)
+            setnotification(result.data.notification)
+            setqueue(result.data.queue_number)
+          })
+          .catch (error => {
+            console.log('ERROR: ',error)
+          })
+        } else {
+          console.log("You are not in any queue!")
+        }
+        setRefreshing(false)
+      });
+      return unsubscribe;
+    }, [navigation])
+  )
 
   return (
     <SafeAreaView style={styles.safecontainer}>
