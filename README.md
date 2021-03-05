@@ -1,6 +1,9 @@
 # frontend_nextq
 
-# To check toastify feature on mobile.
+# QR codes include in src/Images/QR codes folder feel free to test it out!
+
+# To check toastify feature on mobile. (Currently is enable where if testing out with web browser project cant be loaded)
+# Just follow the instruction below to enable/ remove toastify feature to test on mobile or web browser vice versa.
 
 # Packge detail at:
 # https://github.com/magicismight/react-native-root-toast

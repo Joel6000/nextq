@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Card } from 'react-native-elements';
 import { Auth } from '../components/context.js';
 import { Entypo, Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from "@react-navigation/native";
 import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, Text, SafeAreaView, View, ScrollView, StatusBar, RefreshControl } from 'react-native';
 
@@ -13,6 +14,8 @@ export default function History({navigation}) {
   // History
   const [history, sethistory] = useState([])
   
+  // This can be combine into useFocusEffect function (which is redudant)
+  // But this useEffect api call is faster than useFocusEffect (cons is only able to run once whenever load into the screen)
   useEffect(() => {    
     axios.get(`https://nextq.herokuapp.com/api/v1/history/${userID}/user/all`,
     {
@@ -77,6 +80,8 @@ export default function History({navigation}) {
   //   return unsubscribe;
   // }, [navigation]);
 
+  // Refresh whenever focus on screen
+  // This can be add into useFocusEffect function below to perform same functionality
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setRefreshing(true)
@@ -100,6 +105,31 @@ export default function History({navigation}) {
     });
     return unsubscribe;
   }, [navigation]);
+
+  // Allow tabPress refresh function only when screen is Focused
+  useFocusEffect(
+    React.useCallback(() => {
+      const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', () => {
+        setRefreshing(true);
+        axios.get(`https://nextq.herokuapp.com/api/v1/history/${userID}/user/all`,
+        {
+          headers: {
+            "Authorization" : "Bearer " + jwt
+          }
+        })
+        .then (result => {
+          const reversedata = result.data.reverse()
+          sethistory([...reversedata])
+          setRefreshing(false);
+          console.log("Refreshed & API successfully called! (Pressed on Icon)")
+        })
+        .catch (error => {
+          console.log('ERROR: ',error)
+        });
+      });
+      return unsubscribe;
+    }, [navigation])
+  )
 
   return (
     <SafeAreaView style={styles.safecontainer}>
