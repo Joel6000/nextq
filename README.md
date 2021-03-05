@@ -1,5 +1,6 @@
 # frontend_nextq
 
+# Published @ https://expo.io/@joel600/projects/nextq
 # QR codes include in src/Images/QR codes folder feel free to test it out!
 
 # To check toastify feature on mobile. (Currently is enable where if testing out with web browser project cant be loaded)
